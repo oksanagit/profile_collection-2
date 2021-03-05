@@ -6,6 +6,8 @@ import numpy, h5py, math
 import pandas as pd
 import itertools, os, json
 
+from nslsii.areadetector.xspress3 import build_detector_class
+
 import matplotlib.pyplot as plt
 from IPython import get_ipython
 user_ns = get_ipython().user_ns
@@ -30,25 +32,27 @@ from BMM.xspress3      import Xspress3FileStoreFlyable, BMMXspress3DetectorBase,
 # This means that Xspress3 will require its own count plan
 # also that a linescan or xafs scan must set total_points up front
 
-class BMMXspress3Detector_4Element(BMMXspress3DetectorBase):
+4Element_class = build_detector_class(channel_count=4, roi_count=16, parent_classes=[BMMXspress3DetectorBase])
+
+class BMMXspress3Detector_4Element(4Element_class):
     '''Subclass of BMMXspress3DetectorBase with things specific to the 4-element interface.
     '''
 
-    channel1 = Cpt(BMMXspress3Channel, 'C1_', channel_num=1, read_attrs=['rois'])
-    channel2 = Cpt(BMMXspress3Channel, 'C2_', channel_num=2, read_attrs=['rois'])
-    channel3 = Cpt(BMMXspress3Channel, 'C3_', channel_num=3, read_attrs=['rois'])
-    channel4 = Cpt(BMMXspress3Channel, 'C4_', channel_num=4, read_attrs=['rois'])
+    #channel1 = Cpt(BMMXspress3Channel, 'C1_', channel_num=1, read_attrs=['rois'])
+    #channel2 = Cpt(BMMXspress3Channel, 'C2_', channel_num=2, read_attrs=['rois'])
+    #channel3 = Cpt(BMMXspress3Channel, 'C3_', channel_num=3, read_attrs=['rois'])
+    #channel4 = Cpt(BMMXspress3Channel, 'C4_', channel_num=4, read_attrs=['rois'])
     #create_dir = Cpt(EpicsSignal, 'HDF5:FileCreateDir')
 
-    mca1_sum = Cpt(EpicsSignal, 'ARRSUM1:ArrayData')
-    mca2_sum = Cpt(EpicsSignal, 'ARRSUM2:ArrayData')
-    mca3_sum = Cpt(EpicsSignal, 'ARRSUM3:ArrayData')
-    mca4_sum = Cpt(EpicsSignal, 'ARRSUM4:ArrayData')
+    #mca1_sum = Cpt(EpicsSignal, 'ARRSUM1:ArrayData')
+    #mca2_sum = Cpt(EpicsSignal, 'ARRSUM2:ArrayData')
+    #mca3_sum = Cpt(EpicsSignal, 'ARRSUM3:ArrayData')
+    #mca4_sum = Cpt(EpicsSignal, 'ARRSUM4:ArrayData')
     
-    mca1 = Cpt(EpicsSignal, 'ARR1:ArrayData')
-    mca2 = Cpt(EpicsSignal, 'ARR2:ArrayData')
-    mca3 = Cpt(EpicsSignal, 'ARR3:ArrayData')
-    mca4 = Cpt(EpicsSignal, 'ARR4:ArrayData')
+    #mca1 = Cpt(EpicsSignal, 'ARR1:ArrayData')
+    #mca2 = Cpt(EpicsSignal, 'ARR2:ArrayData')
+    #mca3 = Cpt(EpicsSignal, 'ARR3:ArrayData')
+    #mca4 = Cpt(EpicsSignal, 'ARR4:ArrayData')
     
     
     def __init__(self, prefix, *, configuration_attrs=None, read_attrs=None,
@@ -58,7 +62,8 @@ class BMMXspress3Detector_4Element(BMMXspress3DetectorBase):
         #                            'spectra_per_point', 'settings',
         #                            'rewindable']
         if read_attrs is None:
-            read_attrs = ['channel1', 'channel2', 'channel3', 'channel4', 'hdf5']
+            #read_attrs = ['channel1', 'channel2', 'channel3', 'channel4', 'hdf5']
+            read_attrs = ['channels', 'hdf5']
         super().__init__(prefix, configuration_attrs=None,
                          read_attrs=read_attrs, **kwargs)
         self.set_channels_for_hdf5(channels=range(1,5))
@@ -68,13 +73,13 @@ class BMMXspress3Detector_4Element(BMMXspress3DetectorBase):
         '''call the signals to clear ROIs.  Would like to clear array sums as well....
         '''
         for i in range(1,5):
-            getattr(self, f'channel{i}').reset()
+            getattr(self.channels, f'channel_{i}').reset()
             ## this doesn't work, not seeing how those arrays get cleared in the IOC....
             # getattr(self, f'mca{i}_sum').put(numpy.zeros)
         
     def restart(self):
         for n in range(1,5):
-            this = getattr(self, f'channel{n}')
+            this = getattr(self.channels, f'channel_{n}')
             this.vis_enabled.put(1)
             this.extra_rois_enabled.put(1)
         #XF:06BM-ES{Xsp:1}:C1_PluginControlValExtraROI
@@ -90,6 +95,7 @@ class BMMXspress3Detector_4Element(BMMXspress3DetectorBase):
         for i, el in enumerate(self.slots):
             if el == 'OCR':
                 for ch in range(1,5):
+                    
                     self.set_roi_channel(channel=ch, index=i+1, name='OCR', low=allrois['OCR']['low'], high=allrois['OCR']['high'])
                 continue
             elif el is None:

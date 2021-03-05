@@ -22,8 +22,9 @@ from bluesky.plan_stubs import abs_set, sleep, mv, null
 from pathlib import PurePath
 #from hxntools.detectors.xspress3 import (XspressTrigger, Xspress3Detector,
 #                                         Xspress3Channel, Xspress3FileStore, logger)
-from nslsii.detectors.xspress3 import (XspressTrigger, Xspress3Detector,
-                                       Xspress3Channel, Xspress3FileStore, logger)
+#from nslsii.detectors.xspress3 import (XspressTrigger, Xspress3Detector,
+#                                       Xspress3Channel, Xspress3FileStore, logger)
+from nslsii.areadetector.xspress3 import XspressTrigger, Xspress3FileStore, build_detector_class 
 
 import numpy, h5py, json
 #import pandas as pd
@@ -151,9 +152,11 @@ class BMMXspress3Channel(Xspress3Channel):
         for r in self.resets.read_attrs:
             getattr(self.resets, r).put(1)
 ################################################################################
+
+
+
     
-    
-class BMMXspress3DetectorBase(XspressTrigger, Xspress3Detector):
+class BMMXspress3DetectorBase(XspressTrigger):
     '''This class captures everything that is in common for the 1-element
     and 4-element detector interfaces.
     '''
@@ -178,7 +181,7 @@ class BMMXspress3DetectorBase(XspressTrigger, Xspress3Detector):
     # mca4 = Cpt(EpicsSignal, 'ARR4:ArrayData')
     # #mca8 = Cpt(EpicsSignal, 'ARR8:ArrayData')
     
-    hdf5 = Cpt(Xspress3FileStoreFlyable, 'HDF5:',
+    hdf5 = Cpt(Xspress3FileStoreFlyable, 'HDF1:',
                read_path_template='/mnt/nfs/xspress3/BMM/',   # path to data folder, as mounted on client (i.e. ws1) 
                root='/mnt/nfs/xspress3/',                     # path to root, as mounted on client (i.e. ws1)
                write_path_template='/home/xspress3/data/BMM', # full path on IOC server (i.e. xf06bm-ioc-xspress3)

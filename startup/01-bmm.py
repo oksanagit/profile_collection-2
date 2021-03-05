@@ -8,7 +8,7 @@ logger.setLevel('WARNING')
 from BMM.workspace import initialize_workspace, rkvs
 initialize_workspace()
 
-import json, time
+import json, time, sys
 
 
 DATA = os.path.join(os.getenv('HOME'), 'Data', 'bucket') + '/'

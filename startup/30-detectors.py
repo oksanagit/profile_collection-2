@@ -280,12 +280,16 @@ pil     = PilatusGrabber(pilatus)
 
 from BMM.xspress3_4element import BMMXspress3Detector_4Element
 from BMM.xspress3_1element import BMMXspress3Detector_1Element
+from nslsii.areadetector.xspress3 import build_detector_class 
+
 use_4element = True
 if with_xspress3 is True:
     if use_4element:
         run_report('\t'+'4-element SDD with Xspress3')
 
         xs  = BMMXspress3Detector_4Element('XF:06BM-ES{Xsp:1}:', name='xs')
+
+
         # This is necessary for when the ioc restarts
         # we have to trigger one image for the hdf5 plugin to work correctly
         # else, we get file writing errors
