@@ -1,7 +1,11 @@
 import nslsii
 ip = get_ipython()
 
-nslsii.configure_base(ip.user_ns, 'bmm', configure_logging=False)
+nslsii.configure_base(ip.user_ns, 'bmm', configure_logging=True)
+
+import logging
+from ophyd.log import config_ophyd_logging
+#config_ophyd_logging(file="ophyd_debug.log", level=logging.DEBUG)
 
 bec.disable_plots()
 bec.disable_baseline()
